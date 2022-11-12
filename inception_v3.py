@@ -28,7 +28,8 @@ def create_train_test_dirs(root_path):
     for i in grape_labels:
         os.makedirs(os.path.join(path,i))
 
-create_train_test_dirs(root_dir)
+if not os.path.exists(root_dir):
+    create_train_test_dirs(root_dir)
 
 
 def split_data(SOURCE, TRAINING, TESTING, SPLIT_SIZE):
@@ -64,11 +65,11 @@ training_dir = "./grape_dataset/training"
 testing_dir = "./grape_dataset/testing"
 split_size = 0.8
 
-for i in grape_labels:
-    label_source_dir = source_path + str(i) + "/"
-    training_label_dir = os.path.join(training_dir, (str(i)+"/"))
-    testing_label_dir = os.path.join(testing_dir, (str(i)+"/"))
-    split_data(label_source_dir, training_label_dir, testing_label_dir, split_size)
+# for i in grape_labels:
+#     label_source_dir = source_path + str(i) + "/"
+#     training_label_dir = os.path.join(training_dir, (str(i)+"/"))
+#     testing_label_dir = os.path.join(testing_dir, (str(i)+"/"))
+#     split_data(label_source_dir, training_label_dir, testing_label_dir, split_size)
 
 for i in grape_labels:
     training_label_dir = os.path.join(training_dir, (str(i)+"/"))
@@ -113,7 +114,6 @@ def train_val_generators(TRAINING_DIR, VALIDATION_DIR):
 train_generator, validation_generator = train_val_generators(training_dir, testing_dir)
 
 
-
 from tensorflow.keras import Sequential, layers
 
 model = Sequential()
@@ -140,6 +140,41 @@ model.compile(
         metrics=["accuracy"]
 )
 
+history = model.fit(train_generator, steps_per_epoch=4, epochs=25, validation_data=validation_generator, validation_steps=2)
+
+
+model.save('inception_v3_base.h5')
+
+import matplotlib.pyplot as plt
+
+acc = history.history['accuracy']
+val_acc = history.history['val_accuracy']
+
+epochs = range(len(acc))
+
+plt.plot(epochs, acc, 'r', label='Training accuracy')
+plt.plot(epochs, val_acc, 'b', label='Validation accuracy')
+plt.title('Training and validation accuracy')
+plt.legend(loc=0)
+plt.figure()
+
+plt.show()
+
+
+loss = history.history['loss']
+val_loss = history.history['val_loss']
+
+epochs = range(len(loss))
+
+plt.plot(epochs, loss, 'r', label='Training loss')
+plt.plot(epochs, val_loss, 'b', label='Validation loss')
+plt.title('Training and validation loss')
+plt.legend(loc=0)
+plt.figure()
+
+plt.show()
+
+exit()
 
 from tensorflow.keras.models import Model
 from tensorflow.keras.applications.inception_v3 import InceptionV3

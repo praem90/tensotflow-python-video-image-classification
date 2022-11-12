@@ -2,8 +2,6 @@ import tensorflow as tf
 import numpy as np
 import cv2;
 from PIL import Image
-import time
-import threading
 
 def writeText(img, class_name):
     img = cv2.resize(img, (round(img.shape[1]/2), round(img.shape[0]/2)), fx = 0, fy = 0,

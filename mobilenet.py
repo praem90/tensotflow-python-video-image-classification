@@ -20,7 +20,7 @@ from tensorflow.keras.applications.mobilenet_v2 import preprocess_input
 
 
 data_dir = '/home/praem90/packages/EachOneTeachOne/ImageClassification/Grapevine_Leaves_Image_Dataset/'
-test_dir = '/home/praem90/packages/EachOneTeachOne/ImageClassification/Training set Oneplus8'
+data_dir = '/home/praem90/packages/EachOneTeachOne/ImageClassification/Training set Oneplus8/'
 
 class_list = os.listdir(data_dir)
 class_directory = {"Ak": 0, "Ala_Idris": 1, "Buzgulu": 2, "Dimnit": 3, "Nazli": 4}

@@ -54,16 +54,16 @@ Catseries=pd.Series(classlist, name='Category')
 Countseries=pd.Series(countlist, name='Image Count')
 crop_df=pd.concat([Catseries, Countseries], axis=1)
 print(crop_df.head(class_count))
-fig = plt.figure(figsize=(6,6))
-labels=crop_df['Category']
-sizes=crop_df['Image Count']
-x=np.arange(len(labels))
-plt.xticks(np.arange(class_count)+.5, classes, rotation=90)
-plt.title('Image Sample distribution', color='blue', fontsize=16)
-plt.bar(x,sizes, tick_label=crop_df['Category'])
-plt.xlabel('Tumor Type')
-plt.ylabel('Image Samples')
-plt.show()
+# labels=crop_df['Category']
+# fig = plt.figure(figsize=(6,6))
+# sizes=crop_df['Image Count']
+# x=np.arange(len(labels))
+# plt.xticks(np.arange(class_count)+.5, classes, rotation=90)
+# plt.title('Image Sample distribution', color='blue', fontsize=16)
+# plt.bar(x,sizes, tick_label=crop_df['Category'])
+# plt.xlabel('Tumor Type')
+# plt.ylabel('Image Samples')
+# plt.show()
 # get the classes with the minimum and maximum number of train images
 max_value=np.max(countlist)
 max_index=countlist.index(max_value)
@@ -269,45 +269,46 @@ callbacks=[ask]
 history=model.fit(x=train_gen,  epochs=epochs, verbose=1, callbacks=callbacks,  validation_data=valid_gen,
                validation_steps=None,  shuffle=False,  initial_epoch=0)
 
-def predictor(test_gen, test_steps):
-    y_pred= []
-    y_true=test_gen.labels
-    classes=list(train_gen.class_indices.keys())
-    class_count=len(classes)
-    errors=0
-    preds=model.predict(test_gen, steps=test_steps, verbose=1)
-    tests=len(preds)
-    for i, p in enumerate(preds):
-            pred_index=np.argmax(p)
-            true_index=test_gen.labels[i]  # labels are integer values
-            if pred_index != true_index: # a misclassification has occurred
-                errors=errors + 1
-            y_pred.append(pred_index)
-    acc=( 1-errors/tests) * 100
-    print(f'there were {errors} errors in {tests} tests for an accuracy of {acc:6.2f}')
-    ypred=np.array(y_pred)
-    ytrue=np.array(y_true)
-    if class_count <=30:
-        cm = confusion_matrix(ytrue, ypred )
-        # plot the confusion matrix
-        plt.figure(figsize=(12, 8))
-        sns.heatmap(cm, annot=True, vmin=0, fmt='g', cmap='Blues', cbar=False)
-        plt.xticks(np.arange(class_count)+.5, classes, rotation=90)
-        plt.yticks(np.arange(class_count)+.5, classes, rotation=0)
-        plt.xlabel("Predicted")
-        plt.ylabel("Actual")
-        plt.title("Confusion Matrix")
-        plt.show()
-    clr = classification_report(y_true, y_pred, target_names=classes, digits= 4) # create classification report
-    print("Classification Report:\n----------------------\n", clr)
-    return errors, tests
-errors, tests=predictor(test_gen, test_steps)
+# def predictor(test_gen, test_steps):
+#     y_pred= []
+#     y_true=test_gen.labels
+#     classes=list(train_gen.class_indices.keys())
+#     class_count=len(classes)
+#     errors=0
+#     preds=model.predict(test_gen, steps=test_steps, verbose=1)
+#     tests=len(preds)
+#     for i, p in enumerate(preds):
+#             pred_index=np.argmax(p)
+#             true_index=test_gen.labels[i]  # labels are integer values
+#             if pred_index != true_index: # a misclassification has occurred
+#                 errors=errors + 1
+#             y_pred.append(pred_index)
+#     acc=( 1-errors/tests) * 100
+#     print(f'there were {errors} errors in {tests} tests for an accuracy of {acc:6.2f}')
+#     ypred=np.array(y_pred)
+#     ytrue=np.array(y_true)
+#     if class_count <=30:
+#         cm = confusion_matrix(ytrue, ypred )
+#         # plot the confusion matrix
+#         plt.figure(figsize=(12, 8))
+#         sns.heatmap(cm, annot=True, vmin=0, fmt='g', cmap='Blues', cbar=False)
+#         plt.xticks(np.arange(class_count)+.5, classes, rotation=90)
+#         plt.yticks(np.arange(class_count)+.5, classes, rotation=0)
+#         plt.xlabel("Predicted")
+#         plt.ylabel("Actual")
+#         plt.title("Confusion Matrix")
+#         plt.show()
+#     clr = classification_report(y_true, y_pred, target_names=classes, digits= 4) # create classification report
+#     print("Classification Report:\n----------------------\n", clr)
+#     return errors, tests
+# errors, tests=predictor(test_gen, test_steps)
 
-acc=str(( 1-errors/tests) * 100)
-index=acc.rfind('.')
-acc=acc[:index + 3]
-save_id= 'efficientnet_' + str(acc) + '.h5'
+# acc=str(( 1-errors/tests) * 100)
+# index=acc.rfind('.')
+# acc=acc[:index + 3]
+save_id= 'efficientnet_2.h5'
 model_save_loc=os.path.join(working_dir, save_id)
 model.save(model_save_loc)
+
 print ('model was saved as ' , model_save_loc )
 

@@ -8,7 +8,7 @@ from tensorflow.keras import layers
 from tensorflow.keras.models import Sequential
 
 data_dir = '/home/praem90/packages/EachOneTeachOne/ImageClassification/Grapevine_Leaves_Image_Dataset';
-batch_size = 4
+batch_size = 8
 img_height = 511
 img_width = 511
 
@@ -21,7 +21,7 @@ train_ds = tf.keras.utils.image_dataset_from_directory(
   batch_size=batch_size)
 
 val_ds = tf.keras.utils.image_dataset_from_directory(
-  '/home/praem90/packages/EachOneTeachOne/ImageClassification/Good predictions',
+  '/home/praem90/packages/EachOneTeachOne/ImageClassification/Training set Oneplus8',
   validation_split=0.2,
   subset="validation",
   seed=123,
@@ -45,24 +45,23 @@ test_dataset = test_dataset.prefetch(buffer_size=AUTOTUNE)
 
 
 data_augmentation = tf.keras.Sequential([
-  tf.keras.layers.RandomFlip('horizontal'),
-  tf.keras.layers.RandomRotation(0.2),
+  layers.RandomFlip("horizontal_and_vertical"),
+  layers.RandomRotation(0.2),
 ])
 
+resize_and_rescale = tf.keras.Sequential([
+  layers.Resizing(img_width, img_height),
+  layers.Rescaling(1./255)
+])
 
-normalization_layer = layers.Rescaling(1./127.5, offset=-1)
-
-normalized_ds = train_ds.map(lambda x, y: (normalization_layer(x), y))
-image_batch, labels_batch = next(iter(normalized_ds))
-first_image = image_batch[0]
-# Notice the pixel values are now in `[0,1]`.
-print(np.min(first_image), np.max(first_image))
 
 
 num_classes = len(class_names)
 
 model = Sequential([
-  layers.Rescaling(1./255, input_shape=(img_height, img_width, 3)),
+  layers.Rescaling(1./127.5, offset=-1, input_shape=(img_height, img_width, 3)),
+  layers.RandomFlip("horizontal_and_vertical"),
+  layers.RandomRotation(0.2),
   layers.Conv2D(16, 3, padding='same', activation='relu'),
   layers.MaxPooling2D(),
   layers.Conv2D(32, 3, padding='same', activation='relu'),

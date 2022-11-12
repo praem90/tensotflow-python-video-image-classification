@@ -4,7 +4,7 @@ import cv2;
 from PIL import Image
 
 def writeText(img, class_name):
-    img = cv2.resize(img, (500, 500), fx = 0, fy = 0,
+    img = cv2.resize(img, (round(img.shape[1]/2), round(img.shape[0]/2)), fx = 0, fy = 0,
                              interpolation = cv2.INTER_CUBIC)
 # font
     font = cv2.FONT_HERSHEY_SIMPLEX
@@ -12,9 +12,9 @@ def writeText(img, class_name):
     textsize = cv2.getTextSize(class_name, font, 1, 2)[0]
 
     textX = round((img.shape[1] - textsize[0]) / 2)
-    textY = 500 - round((100 - textsize[1]) / 2)
+    textY = textsize[1] * 2
 
-    img = cv2.rectangle( img, (0, 400), (500, 500), (255, 255, 255), -1)
+    img = cv2.rectangle( img, (0, 0), (img.shape[1], 100), (255, 255, 255), -1)
 
     img = cv2.putText(img, class_name, (textX, textY), font, 1, (0, 0, 0), 2, cv2.LINE_AA)
 
@@ -23,7 +23,7 @@ def writeText(img, class_name):
 
 def get_img_array_from_path(path):
     img = tf.keras.utils.load_img(
-        ak_path, target_size=(img_height, img_width)
+        path, target_size=(img_height, img_width)
     )
     img_array = tf.keras.utils.img_to_array(img)
     img_array = tf.expand_dims(img_array, 0) # Create a batch
@@ -32,7 +32,8 @@ def get_img_array_from_path(path):
 
 
 def predict_img():
-    ak_path = '/home/praem90/packages/EachOneTeachOne/ImageClassification/Ala idris 05 Nov 4 direction/Ala idris 05 Nov 4 direction/IMG_20221105_105044.jpg'
+    ak_path = '/home/praem90/packages/EachOneTeachOne/ImageClassification/New training set/IMG_20221105_100232.jpg'
+    ak_path = '/home/praem90/packages/EachOneTeachOne/ImageClassification/Training set Oneplus8/Ala_Idris/IMG_20221104_064741.jpg'
 
     img_array = get_img_array_from_path(ak_path)
 
@@ -44,47 +45,56 @@ def predict_img():
     img = cv2.imread(ak_path)
 
     writeText(img, class_name)
+    cv2.waitKey(0)
 
 
 
-model = tf.keras.models.load_model('./model')
+model = tf.keras.models.load_model('best_mobilenet_model_binary_511.h5')
 
 class_names = ['Ak', 'Ala_Idris', 'Buzgulu', 'Dimnit', 'Nazli']
 
 img_height = 511
 img_width = 511
 
-video = cv2.VideoCapture('rtmp://streamspace.live/jptv/livestream')
+def predict_stream():
+    video = cv2.VideoCapture('rtmp://streamspace.live/eachone/teachone')
 
-while True:
-    _, frame = video.read()
+    while True:
+        _, frame = video.read()
 
-    #Convert the captured frame into RGB
-    img = Image.fromarray(frame, 'RGB')
+        if frame is None:
+            continue
 
-    #Resizing into dimensions you used while training
-    img = img.resize((img_width, img_height))
-    img_array = np.array(img)
+        #Convert the captured frame into RGB
+        img = Image.fromarray(frame, 'RGB')
 
-    #Expand dimensions to match the 4D Tensor shape.
-    img_array = np.expand_dims(img_array, axis=0)
+        #Resizing into dimensions you used while training
+        img = img.resize((img_width, img_height))
+        img_array = np.array(img)
 
-    predictions = model.predict(img_array)
-    score = tf.nn.softmax(predictions[0])
+        #Expand dimensions to match the 4D Tensor shape.
+        img_array = np.expand_dims(img_array, axis=0)
 
-    class_name = class_names[np.argmax(score)]
+        predictions = model.predict(img_array)
+        score = tf.nn.softmax(predictions[0])
 
-    predictions = model.predict(img_array)
-    score = tf.nn.softmax(predictions[0])
+        class_name = class_names[np.argmax(score)]
 
-    class_name = class_names[np.argmax(score)]
+        predictions = model.predict(img_array)
+        score = tf.nn.softmax(predictions[0])
 
-    writeText(frame, class_name)
+        class_name = class_names[np.argmax(score)]
 
-    key=cv2.waitKey(1)
-    if key == ord('q'):
-        break
+        writeText(frame, class_name)
 
-video.release()
+        key=cv2.waitKey(1)
+        if key == ord('q'):
+            break
+
+    video.release()
+
+predict_img()
+# predict_stream()
+
 cv2.destroyAllWindows()
 
